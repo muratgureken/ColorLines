@@ -7,6 +7,30 @@ public class GameParameters {
 	private int[][] boundaries6x6;
 	Color[] colors = new Color[6];
 	
+	public int[][] getBoundaries5x5() {
+		return boundaries5x5;
+	}
+
+	public void setBoundaries5x5(int[][] boundaries5x5) {
+		this.boundaries5x5 = boundaries5x5;
+	}
+
+	public int[][] getBoundaries6x6() {
+		return boundaries6x6;
+	}
+
+	public void setBoundaries6x6(int[][] boundaries6x6) {
+		this.boundaries6x6 = boundaries6x6;
+	}
+
+	public Color[] getColors() {
+		return colors;
+	}
+
+	public void setColors(Color[] colors) {
+		this.colors = colors;
+	}
+
 	public GameParameters() {
 		boundaries5x5 = new int[20][11];
 		boundaries6x6 = new int[20][13];

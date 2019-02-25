@@ -1,40 +1,55 @@
 package gui;
 
 import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.GridLayout;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
 import javax.swing.BorderFactory;
-import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
-import javax.swing.TransferHandler;
+
+import database.GameParameters;
+import database.LabelCenters;
+import java.awt.BorderLayout;
+import java.awt.Font;
+import javax.swing.SwingConstants;
 
 public class FlowFree extends JFrame implements MouseMotionListener,MouseListener{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8640151106747724889L;
 	private JPanel leftPanel = new JPanel(null);
+	int boxSize=50;
 	//private JPanel rightPanel = new JPanel(null);
-	JLabel dropLabel;
-	JLabel[] kutular = new JLabel[6];
-	
+	//JLabel dropLabel;
+	JLabel[] kutular = new JLabel[25];
+
 	public FlowFree() {
 		//this.setLayout(new GridLayout(1, 2));
-		
+		LabelCenters lc = new LabelCenters(boxSize);
+		GameParameters gp = new GameParameters();
+
 		//leftPanel.setBorder(BorderFactory.createLineBorder(Color.black));
 		for(int i=0; i<kutular.length; i++)
 		{
 			kutular[i] = new JLabel();
 			//array[i].setFont(new Font("Tahoma", Font.PLAIN, 10));
-			kutular[i].setBounds(i*100, 0, 100, 100);
+			System.out.println("Label-"+i+" posx:"+lc.getCenter6().get(2*i)+" posy:"+lc.getCenter6().get(2*i+1));
+
+			kutular[i].setBounds(lc.getCenter5().get(2*i), lc.getCenter5().get(2*i+1), boxSize, boxSize);
+			kutular[i].setBorder(BorderFactory.createLineBorder(Color.red));
+
 			kutular[i].setVisible(true);
-			kutular[i].setBorder(BorderFactory.createLineBorder(Color.black));
 			kutular[i].addMouseListener(this);
 			kutular[i].addMouseMotionListener(this);
-			getContentPane().add(kutular[i]);
+			kutular[i].setHorizontalAlignment(SwingConstants.CENTER);
+			//kutular[i].setBackground(Color.YELLOW);
+			kutular[i].setFont(new Font("Tahoma", Font.BOLD, 50));
+			kutular[i].setText("O");
+			getContentPane().add(kutular[i], BorderLayout.CENTER);
 		}
 		//rightPanel.setBorder(BorderFactory.createLineBorder(Color.black));
 		//this.add(leftPanel);
@@ -42,14 +57,12 @@ public class FlowFree extends JFrame implements MouseMotionListener,MouseListene
 		leftPanel.addMouseListener(this);
 		leftPanel.addMouseMotionListener(this);
 
-		JTextArea area = new JTextArea();
-
 		//rightPanel.setLayout(new GridLayout(1, 1));
 		//rightPanel.add(area);
 
-		dropLabel = new JLabel("drop");
-		dropLabel.setTransferHandler(new TransferHandler("text"));
-		
+		/*dropLabel = new JLabel("drop");
+		dropLabel.setTransferHandler(new TransferHandler("text"));*/
+
 	}
 	@Override
 	public void mousePressed(MouseEvent e) {
@@ -77,7 +90,7 @@ public class FlowFree extends JFrame implements MouseMotionListener,MouseListene
 			kutular[3].setText("O");
 		}
 		//dropLabel.getTransferHandler().exportAsDrag(dropLabel, me,
-			//	TransferHandler.COPY);
+		//	TransferHandler.COPY);
 	}
 
 	@Override
