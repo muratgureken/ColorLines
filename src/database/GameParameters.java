@@ -1,47 +1,40 @@
 package database;
 
 import java.awt.Color;
+import java.util.LinkedList;
 
 public class GameParameters {
 	private int[][] boundaries5x5;
 	private int[][] boundaries6x6;
-	Color[] colors = new Color[6];
+	private LinkedList<Color> colors=new LinkedList<Color>();
 	
-	public int[][] getBoundaries5x5() {
-		return boundaries5x5;
+	public int getBoundaries5x5(int i, int j) {
+		return boundaries5x5[i][j];
 	}
 
-	public void setBoundaries5x5(int[][] boundaries5x5) {
-		this.boundaries5x5 = boundaries5x5;
+	public int getBoundaries6x6(int i, int j) {
+		return boundaries6x6[i][j];
 	}
 
-	public int[][] getBoundaries6x6() {
-		return boundaries6x6;
-	}
-
-	public void setBoundaries6x6(int[][] boundaries6x6) {
-		this.boundaries6x6 = boundaries6x6;
-	}
-
-	public Color[] getColors() {
+	public LinkedList<Color> getColors() {
 		return colors;
 	}
 
-	public void setColors(Color[] colors) {
+	public void setColors(LinkedList<Color> colors) {
 		this.colors = colors;
 	}
 
 	public GameParameters() {
 		boundaries5x5 = new int[20][11];
 		boundaries6x6 = new int[20][13];
-
-		colors[0] = Color.BLUE;
-		colors[1] = Color.RED;
-		colors[2] = Color.YELLOW;
-		colors[3] = Color.GREEN;
-		colors[4] = Color.CYAN;
-		colors[5] = Color.ORANGE;
-
+                
+		colors.add(Color.BLUE);
+		colors.add(Color.RED);
+		colors.add(Color.YELLOW);
+		colors.add(Color.GREEN);
+		colors.add(Color.CYAN);
+		colors.add(Color.ORANGE);
+                
 		boundaries5x5[0][0] = 5;
 		boundaries5x5[0][1] = 0;
 		boundaries5x5[0][2] = 21;
@@ -52,7 +45,7 @@ public class GameParameters {
 		boundaries5x5[0][7] = 7;
 		boundaries5x5[0][8] = 22;
 		boundaries5x5[0][9] = 9;
-		boundaries5x5[0][10] = 23;
+		boundaries5x5[0][1] = 23;
 		
 		boundaries5x5[1][0] = 4;
 		boundaries5x5[1][1] = 0;

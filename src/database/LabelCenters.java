@@ -34,6 +34,9 @@ public class LabelCenters {
 				center5.add(30+labelSize+i*labelSize);
 			}
 		}
+                center5.add(20+labelSize);
+		center5.add(30+labelSize);
+                
 		for(int i=0;i<6;i++)
 		{
 			for(int j=0;j<6;j++)
@@ -42,5 +45,7 @@ public class LabelCenters {
 				center6.add(30+labelSize/2+i*labelSize);
 			}
 		}
+                center6.add(20+labelSize);
+		center6.add(30+labelSize);
 	}
 }
