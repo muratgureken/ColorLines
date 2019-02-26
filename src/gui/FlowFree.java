@@ -14,6 +14,7 @@ import java.awt.BorderLayout;
 import java.awt.Font;
 import java.util.LinkedList;
 import javax.swing.SwingConstants;
+import javax.swing.JLabel;
 
 public class FlowFree extends JFrame implements MouseMotionListener,MouseListener{
 	/**
@@ -21,24 +22,36 @@ public class FlowFree extends JFrame implements MouseMotionListener,MouseListene
 	 */
 	private static final long serialVersionUID = 8640151106747724889L;
 	//private JPanel leftPanel = new JPanel(null);
-	int boxSize=50;
+	int boxSize=80;
 	//private JPanel rightPanel = new JPanel(null);
 	//JLabel dropLabel;
 	Boxes[] bx = new Boxes[25];
 	private Integer level=1, drawableBoxNumber=0, centerNumber=0, selectedBoxNumber=0, rowSize=5, maxLevel=19;
+	private Integer miliseconds, seconds, minutes, timeCriteria=1;
 	private LinkedList<Integer>[] colorLines;
 	private Color currentColor;
 	boolean drawAllowed=true;
-	private boolean isDrawable=false, centerPassed=false, previousBoxCenter=true, firstChoose=true;    
+	private boolean isDrawable=false, centerPassed=false, previousBoxCenter=true, firstChoose=true, gameOver=false;    
 	LabelCenters lc;
 	GameParameters gp;
+	JLabel lblTime;
 
 	public FlowFree() {
 		//this.setLayout(new GridLayout(1, 1));
 		lc = new LabelCenters(boxSize);
 		gp = new GameParameters();
 		getContentPane().setLayout(null);
+		getContentPane().setBackground(Color.black);
 
+		minutes = timeCriteria-1;
+		seconds = 60;
+		miliseconds = 0;
+
+		lblTime = new JLabel("");
+		lblTime.setForeground(Color.WHITE);
+		lblTime.setFont(new Font("Tahoma", Font.BOLD, 18));
+		lblTime.setBounds(484, 11, 114, 35);
+		getContentPane().add(lblTime);
 		getContentPane().addMouseListener(this);
 		getContentPane().addMouseMotionListener(this);
 		for(int i=0; i<bx.length; i++)
@@ -46,13 +59,13 @@ public class FlowFree extends JFrame implements MouseMotionListener,MouseListene
 			bx[i] = new Boxes();
 			bx[i].setName("GameLabel"+i);
 			bx[i].setBounds(lc.getCenter5().get(2*i), lc.getCenter5().get(2*i+1), boxSize, boxSize);
-			bx[i].setBorder(BorderFactory.createLineBorder(Color.red));
+			bx[i].setBorder(BorderFactory.createLineBorder(Color.white));
 			// bx[i].set(false);
 			bx[i].setVisible(true);
 			/*bx[i].addMouseListener(this);
                     bx[i].addMouseMotionListener(this);*/
 			bx[i].setHorizontalAlignment(SwingConstants.CENTER);
-			bx[i].setFont(new Font("Tahoma", Font.BOLD, 50));
+			bx[i].setFont(new Font("Tahoma", Font.BOLD, boxSize));
 			bx[i].setcolorIndex(0);
 			bx[i].setisCenter(false);
 			bx[i].setisDrawn(false);
@@ -65,22 +78,76 @@ public class FlowFree extends JFrame implements MouseMotionListener,MouseListene
 	@Override
 	public void mousePressed(MouseEvent e) {
 		System.out.println("mousePressed");
+
+		Thread gameTimer = new Thread()
+		{
+			public void run()
+			{								
+				for(;;)
+				{
+					if(firstChoose)
+					{
+						try {
+							sleep(1);
+							if(miliseconds<=0)
+							{
+								miliseconds = 999;
+								seconds--;
+							}
+							if(seconds==0)
+							{
+								seconds = 59;
+								minutes--;
+							}
+
+							//System.out.println("min:"+minutes+" sec:"+seconds+" msec:"+miliseconds);
+							lblTime.setText(Integer.toString(minutes)+":"+Integer.toString(seconds)+":"+Integer.toString(miliseconds));
+							miliseconds--;
+
+						} catch (Exception e2) {
+
+						}
+
+						if(minutes<0)
+						{
+							firstChoose = false;
+							lblTime.setText("00:00:000");
+							gameOver = true;
+							System.err.println("Time is over");
+						}
+					}
+					else
+					{
+						break;
+					}
+				}
+			}
+
+		};
+		gameTimer.start();
 		Integer boxIndex;
 		String index, index2;
 		index = getContentPane().getComponentAt(e.getX(), e.getY()).getName();
-		if(index.contains("GameLabel"))
+		if(gameOver)
 		{
-			index2 = index.substring(9);
-			boxIndex = Integer.parseInt(index2);    
-			if((boxIndex<25) && (boxIndex>=0))
+			System.err.println("Time is over");
+		}
+		else
+		{
+			if(index.contains("GameLabel"))
 			{
-				if(bx[boxIndex].getisCenter())
+				index2 = index.substring(9);
+				boxIndex = Integer.parseInt(index2);    
+				if((boxIndex<25) && (boxIndex>=0))
 				{
-					isDrawable = true;
-					currentColor = bx[boxIndex].getForeground();
-					clearIfCenterPressed();
-				}
-			}             
+					if(bx[boxIndex].getisCenter())
+					{
+						isDrawable = true;
+						currentColor = bx[boxIndex].getForeground();
+						clearIfCenterPressed();
+					}
+				}             
+			}
 		}
 	}
 
@@ -90,39 +157,45 @@ public class FlowFree extends JFrame implements MouseMotionListener,MouseListene
 		Integer boxIndex;
 		String index, index2;
 		//System.out.println("control: draw:"+isDrawable+" cpassed:"+centerPassed);
-
-		if(isDrawable)
+		if(gameOver)
 		{
-			index = getContentPane().getComponentAt(me.getX(), me.getY()).getName();
-			if(index.contains("GameLabel"))
+			System.err.println("Time is over");
+		}
+		else
+		{
+			if(isDrawable)
 			{
-				index2 = index.substring(9);
-				boxIndex = Integer.parseInt(index2);    
-
-				if(!previousBoxCenter && bx[boxIndex].getisCenter() && drawAllowed)
+				index = getContentPane().getComponentAt(me.getX(), me.getY()).getName();
+				if(index.contains("GameLabel"))
 				{
-					drawAllowed = false;
-				}
+					index2 = index.substring(9);
+					boxIndex = Integer.parseInt(index2);    
 
-				//System.out.println("previous:"+previousBoxCenter+" nowcenter:"+bx[boxIndex].getisCenter()+" draw:"+drawAllowed);
-				//System.out.println("ne: "+getContentPane().getComponentAt(me.getX(), me.getY()).getName());
-				/*boxIndex = ibc.IsInBorder(me.getX(), me.getY(), rowSize);
-                    System.out.println("boxIndex:"+boxIndex+" mouse pos:x:"+me.getX()+" y:"+me.getY());*/
-				if((boxIndex<25) && (boxIndex>=0) && drawAllowed)
-				{
-					if(bx[boxIndex].getisCenter())
+					if(!previousBoxCenter && bx[boxIndex].getisCenter() && drawAllowed)
 					{
-						//nasil olacak dusunelim.bir kez senter i gecince 
-						centerPassed = true;
+						drawAllowed = false;
 					}
-					else
+
+					//System.out.println("previous:"+previousBoxCenter+" nowcenter:"+bx[boxIndex].getisCenter()+" draw:"+drawAllowed);
+					//System.out.println("ne: "+getContentPane().getComponentAt(me.getX(), me.getY()).getName());
+					/*boxIndex = ibc.IsInBorder(me.getX(), me.getY(), rowSize);
+                    System.out.println("boxIndex:"+boxIndex+" mouse pos:x:"+me.getX()+" y:"+me.getY());*/
+					if((boxIndex<25) && (boxIndex>=0) && drawAllowed)
 					{
-						if(!bx[boxIndex].getisDrawn())
+						if(bx[boxIndex].getisCenter())
 						{
-							bx[boxIndex].setForeground(currentColor);
-							bx[boxIndex].setText("O");
-							previousBoxCenter = false;
-							bx[boxIndex].setisDrawn(true);
+							//nasil olacak dusunelim.bir kez senter i gecince 
+							centerPassed = true;
+						}
+						else
+						{
+							if(!bx[boxIndex].getisDrawn())
+							{
+								bx[boxIndex].setForeground(currentColor);
+								bx[boxIndex].setText("O");
+								previousBoxCenter = false;
+								bx[boxIndex].setisDrawn(true);
+							}
 						}
 					}
 				}
@@ -150,18 +223,26 @@ public class FlowFree extends JFrame implements MouseMotionListener,MouseListene
 		previousBoxCenter = true;
 		drawAllowed=true;
 
-		if(countDrawnBoxes())
+		if(gameOver)
 		{
-			System.err.println("Game Finished");
-			if(level<19)
+			System.err.println("Time is over");
+		}
+		else
+		{
+			if(countDrawnBoxes())
 			{
-				level++;
-				reserBoxValues();
-				applyCentersToBox();
-			}
-			else
-			{
-				System.err.println("All levels are finished succesfully");
+				System.err.println("Game Finished");
+				if(level<19)
+				{
+					level++;
+					reserBoxValues();
+					applyCentersToBox();
+					firstChoose = true;
+				}
+				else
+				{
+					System.err.println("All levels are finished succesfully");
+				}
 			}
 		}
 	}
