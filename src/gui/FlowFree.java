@@ -15,6 +15,7 @@ import java.awt.Font;
 import java.util.LinkedList;
 import javax.swing.SwingConstants;
 import javax.swing.JLabel;
+import methods.ColoredLine;
 
 public class FlowFree extends JFrame implements MouseMotionListener,MouseListener{
 	/**
@@ -22,19 +23,19 @@ public class FlowFree extends JFrame implements MouseMotionListener,MouseListene
 	 */
 	private static final long serialVersionUID = 8640151106747724889L;
 	//private JPanel leftPanel = new JPanel(null);
-	int boxSize=80;
+	int boxSize=80, maxColorNumber=6;
 	//private JPanel rightPanel = new JPanel(null);
 	//JLabel dropLabel;
 	Boxes[] bx = new Boxes[25];
 	private Integer level=1, drawableBoxNumber=0, centerNumber=0, selectedBoxNumber=0, rowSize=5, maxLevel=19;
-	private Integer miliseconds, seconds, minutes, timeCriteria=1;
-	private LinkedList<Integer>[] colorLines;
+	private Integer miliseconds, seconds, minutes, timeCriteria=1, previousBoxIndex, centerBoxIndex;
 	private Color currentColor;
 	boolean drawAllowed=true;
 	private boolean isDrawable=false, centerPassed=false, previousBoxCenter=true, firstChoose=true, gameOver=false;    
 	LabelCenters lc;
 	GameParameters gp;
 	JLabel lblTime;
+        ColoredLine[] colorLines = new ColoredLine[maxColorNumber];       
 
 	public FlowFree() {
 		//this.setLayout(new GridLayout(1, 1));
@@ -42,7 +43,12 @@ public class FlowFree extends JFrame implements MouseMotionListener,MouseListene
 		gp = new GameParameters();
 		getContentPane().setLayout(null);
 		getContentPane().setBackground(Color.black);
-
+                    
+                for(int i=0;i<maxColorNumber;i++)
+                {
+                    colorLines[i] = new ColoredLine();
+                }
+                
 		minutes = timeCriteria-1;
 		seconds = 60;
 		miliseconds = 0;
@@ -104,7 +110,7 @@ public class FlowFree extends JFrame implements MouseMotionListener,MouseListene
 							lblTime.setText(Integer.toString(minutes)+":"+Integer.toString(seconds)+":"+Integer.toString(miliseconds));
 							miliseconds--;
 
-						} catch (Exception e2) {
+						} catch (InterruptedException e2) {
 
 						}
 
@@ -128,6 +134,7 @@ public class FlowFree extends JFrame implements MouseMotionListener,MouseListene
 		Integer boxIndex;
 		String index, index2;
 		index = getContentPane().getComponentAt(e.getX(), e.getY()).getName();
+                
 		if(gameOver)
 		{
 			System.err.println("Time is over");
@@ -140,8 +147,11 @@ public class FlowFree extends JFrame implements MouseMotionListener,MouseListene
 				boxIndex = Integer.parseInt(index2);    
 				if((boxIndex<25) && (boxIndex>=0))
 				{
-					if(bx[boxIndex].getisCenter())
+                                    if(bx[boxIndex].getisCenter())
 					{
+                                                previousBoxIndex = boxIndex;	
+                                                centerBoxIndex = bx[boxIndex].getIndex();
+                                                //System.out.println("bx index:"+boxIndex+" link index:"+bx[boxIndex].getIndex());
 						isDrawable = true;
 						currentColor = bx[boxIndex].getForeground();
 						clearIfCenterPressed();
@@ -188,13 +198,20 @@ public class FlowFree extends JFrame implements MouseMotionListener,MouseListene
 							centerPassed = true;
 						}
 						else
-						{
-							if(!bx[boxIndex].getisDrawn())
+						{                                                    
+                                                    if(!bx[boxIndex].getisDrawn())
 							{
-								bx[boxIndex].setForeground(currentColor);
+						            if(boxChanged(boxIndex))
+                                                            {       
+                                                                previousBoxIndex = boxIndex;
+                                                                System.out.println("linked list indis:"+centerBoxIndex);
+                                                                colorLines[centerBoxIndex].setcolorArray(boxIndex);
+                                                            }
+                                                                bx[boxIndex].setForeground(currentColor);
 								bx[boxIndex].setText("O");
 								previousBoxCenter = false;
 								bx[boxIndex].setisDrawn(true);
+                                                                bx[boxIndex].setIndex(centerBoxIndex);
 							}
 						}
 					}
@@ -266,7 +283,13 @@ public class FlowFree extends JFrame implements MouseMotionListener,MouseListene
 			bx[i].setisCenter(false);
 			bx[i].setisDrawn(false);   
 			bx[i].setText("");
+                        bx[i].setIndex(-1);
 		}
+                
+                for(int i=0;i<maxColorNumber;i++)
+		{
+                    colorLines[i].getcolorArray().clear();
+                }
 	}
 
 	public void clearIfCenterPressed()
@@ -305,6 +328,17 @@ public class FlowFree extends JFrame implements MouseMotionListener,MouseListene
 		return gameFinished;
 	}
 
+        public boolean boxChanged(int boxIndex)
+        {
+            boolean boxChanged=false;
+            if(previousBoxIndex!=boxIndex)
+            {
+                boxChanged = true;
+            }
+            
+            return boxChanged;
+        }
+        
 	public void applyCentersToBox()
 	{          
 		if(rowSize==5)
@@ -320,15 +354,18 @@ public class FlowFree extends JFrame implements MouseMotionListener,MouseListene
 				bx[gp.getBoundaries5x5(level-1,1+2*i)].setisDrawn(true);
 				bx[gp.getBoundaries5x5(level-1,1+2*i)].setText("O");
 				bx[gp.getBoundaries5x5(level-1,1+2*i)].setFirstCenter(gp.getBoundaries5x5(level-1,1+2*i));
-				bx[gp.getBoundaries5x5(level-1,1+2*i)].setIndex(0);
-
+				bx[gp.getBoundaries5x5(level-1,1+2*i)].setIndex(i);
+                                //System.out.println("init bx index:"+gp.getBoundaries5x5(level-1,1+2*i)+" link index:"+bx[gp.getBoundaries5x5(level-1,1+2*i)].getIndex());
+                                
 				bx[gp.getBoundaries5x5(level-1,1+2*i+1)].setForeground(gp.getColors().get(i));
 				bx[gp.getBoundaries5x5(level-1,1+2*i+1)].setcolorIndex(i);
 				bx[gp.getBoundaries5x5(level-1,1+2*i+1)].setisCenter(true);
 				bx[gp.getBoundaries5x5(level-1,1+2*i+1)].setisDrawn(true);
 				bx[gp.getBoundaries5x5(level-1,1+2*i+1)].setText("O");
-				bx[gp.getBoundaries5x5(level-1,1+2*i)].setFirstCenter(gp.getBoundaries5x5(level-1,1+2*i));
-				bx[gp.getBoundaries5x5(level-1,1+2*i)].setIndex(2*centerNumber);
+				bx[gp.getBoundaries5x5(level-1,1+2*i+1)].setFirstCenter(gp.getBoundaries5x5(level-1,1+2*i));
+				bx[gp.getBoundaries5x5(level-1,1+2*i+1)].setIndex(i);
+                                //System.out.println("init bx index:"+gp.getBoundaries5x5(level-1,1+2*i)+" link index:"+bx[gp.getBoundaries5x5(level-1,1+2*i)].getIndex());
+
 			}
 		}
 		else
@@ -341,12 +378,13 @@ public class FlowFree extends JFrame implements MouseMotionListener,MouseListene
 				bx[gp.getBoundaries6x6(level-1,1+2*i)].setisCenter(true);
 				bx[gp.getBoundaries6x6(level-1,1+2*i)].setisDrawn(true);
 				bx[gp.getBoundaries6x6(level-1,1+2*i)].setText("O");
-
+                                bx[gp.getBoundaries6x6(level-1,1+2*i)].setIndex(i);
 				bx[gp.getBoundaries6x6(level-1,1+2*i+1)].setForeground(gp.getColors().get(i));
 				bx[gp.getBoundaries6x6(level-1,1+2*i+1)].setcolorIndex(i);
 				bx[gp.getBoundaries6x6(level-1,1+2*i+1)].setisCenter(true);
 				bx[gp.getBoundaries6x6(level-1,1+2*i+1)].setisDrawn(true);
 				bx[gp.getBoundaries6x6(level-1,1+2*i+1)].setText("O");
+                                bx[gp.getBoundaries6x6(level-1,1+2*i)].setIndex(i);
 			}                
 		}
 	}
