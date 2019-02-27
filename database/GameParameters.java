@@ -45,7 +45,7 @@ public class GameParameters {
 		boundaries5x5[0][7] = 7;
 		boundaries5x5[0][8] = 22;
 		boundaries5x5[0][9] = 9;
-		boundaries5x5[0][1] = 23;
+		boundaries5x5[0][10] = 23;
 		
 		boundaries5x5[1][0] = 4;
 		boundaries5x5[1][1] = 0;
