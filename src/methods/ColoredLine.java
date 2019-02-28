@@ -12,18 +12,18 @@ import java.util.LinkedList;
  * @author mgureken
  */
 public class ColoredLine {
-     private LinkedList<Integer> colorArray; 
+	private LinkedList<Integer> colorArray; 
 
-    public ColoredLine() {
-        colorArray = new LinkedList<Integer>();
-    }
-     
-          
-     	public LinkedList<Integer> getcolorArray() {
+	public ColoredLine() {
+		colorArray = new LinkedList<Integer>();
+	}
+
+
+	public LinkedList<Integer> getcolorArray() {
 		return colorArray;
 	}
 
-        public void setcolorArray(Integer value) {
+	public void setcolorArray(Integer value) {
 		colorArray.add(value);
 	}
 }
